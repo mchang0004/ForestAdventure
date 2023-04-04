@@ -29,7 +29,8 @@ let maxLines = 3;
 textInBox = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.";
 
 let clicksEnabled;
-let negociated = false;
+let negotiated = false;
+
 
 class bCanavs{
   
@@ -84,19 +85,19 @@ class bCanavs{
     rect1_x = width * 0.2;
     rect1_y = (3*height/4);
     rect1_w = width * 0.3;
-    rect1_h = height/8;
+    rect1_h = height * .12;
     rect2_x = width * 0.2;
     rect2_y = 7*height/8;
     rect2_w = width * 0.3;
-    rect2_h = height/8;
+    rect2_h = height * .12;
     rect3_x = (width/2)+5;
     rect3_y = (3*height/4);
     rect3_w = width * 0.3;
-    rect3_h = height/8;
+    rect3_h = height * .12;
     rect4_x = (width/2)+5;
     rect4_y = 7*height/8;
     rect4_w = width * 0.3;
-    rect4_h = height/8;
+    rect4_h = height * .12;
     
     drawButton("Attack", rect1_x, rect1_y, rect1_w, rect1_h, "white", 1);
     drawButton("Heal", rect2_x, rect2_y, rect2_w, rect2_h, "white", 2);
@@ -143,9 +144,12 @@ class bCanavs{
         break;
       
     }
-    let enemyRect = rect(width * 0.7, height * 0.20, width * 0.15 , width * 0.15);
+    
 
-  
+
+    let enemyRect = rect(width * 0.7, height * 0.20, width * 0.15 , width * 0.15);
+    
+    
   }
   
   
@@ -230,7 +234,7 @@ drawInventoryUI() {
       const isSelected = item === equippedWeapon;
 
       // Draw the item background
-      fill(isSelected ? color(255, 255, 150) : color(200));
+      fill(isSelected ? color(247, 255, 133) : color(200));
       rect(inventoryX + inventoryPadding, Inv_y, inventoryWidth - 2 * inventoryPadding, inventoryItemSize, width * .01);
 
       // Draw the weapon image
@@ -282,13 +286,15 @@ drawInventoryUI() {
 
 function drawButton(label, x, y, w, h, color, type) {
   push();
+  
   // Check if mouse is over the button
   if (mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h) {
     fill(220);
   } else {
     fill(color);
   }
-  stroke(25);
+  
+  noStroke();
   // Draw button rectangle
   switch (type) {
     case 1:
@@ -304,7 +310,7 @@ function drawButton(label, x, y, w, h, color, type) {
       rect(x, y, w, h, 5, width * .05, 5, 5);
       break;
     case 4:
-      texture(negociateButton);
+      texture(negotiateButton);
       rect(x, y, w, h, 5, 5, width * .05, 5);
       break;
     default:
@@ -333,9 +339,9 @@ function drawAttackButton(x, y, w, h, color, type){
 
 
 function startCombat(target) {
-  print("Combat Trigger");
+  if(debug) print("Combat Trigger");
   lastAttackStopper = false;
-  negociated = false;
+  negotiated = false;
   playerTurn, (clicksEnabled = true);
   targetEnemy = target;
   enemyNameText = targetEnemy.enemy_name;
@@ -349,7 +355,7 @@ function startCombat(target) {
     inCombat = true;
     
     if (player.DEX < targetEnemy.enemy_DEX){
-      print("TRUE");
+      if(debug) print("TRUE");
       // enemyTurn = true;
       // playerTurn = false;
       clicksEnabled = false;
@@ -373,7 +379,7 @@ function enemyAttackLoop() {
     
     menu.writeText("The Enemy Attacks and deals  " + previousDamage_Enemy + "  damage!");
 
-    print("Player HP: " + player.currentHP);
+    if(debug) print("Player HP: " + player.currentHP);
     enemyTurn = false;
     playerTurn = true;
     clicksEnabled = true;
@@ -431,8 +437,6 @@ function checkHover(x, y, w, h, type, attackType) {
           break;
         case 2:
           //heal function, add hp
-
-          print("case 2 clicked");
           if(player.usePotion()){
             
             playerHealthPercent = player.currentHP / player.maxHP;
@@ -453,7 +457,7 @@ function checkHover(x, y, w, h, type, attackType) {
 
           if(player.CHA > targetEnemy.enemy_CHA){
           
-            negociated = true;
+            negotiated = true;
             menu.writeText("The enemy is feeling generous and lets you pass.");
             targetEnemy.enemyFelled = true;
             targetEnemy.enemy_currentHP = 0;
@@ -469,10 +473,6 @@ function checkHover(x, y, w, h, type, attackType) {
           attacked = true;
           //enemy turn
 
-          break;
-        case 5:
-          print("case 5 clicked");
-          menu.writeText("test 5, this is a text for text.");
           break;
       }
 
@@ -494,7 +494,7 @@ function checkHover(x, y, w, h, type, attackType) {
               //attack function do damage etc
               menu.writeText("You attack the enemy and deal   " + previousDamage + "   damage!");
               //add response for after text, enemy attacks and response
-              print("Enemy HP: " + targetEnemy.enemy_currentHP);
+              if(debug) print("Enemy HP: " + targetEnemy.enemy_currentHP);
            
 
               attackSelected = false;
@@ -506,7 +506,7 @@ function checkHover(x, y, w, h, type, attackType) {
               player.attackMagic(targetEnemy);
               menu.writeText("You attack the enemy and deal   " + previousDamage + "   damage!");
 
-              print("Enemy HP: " + targetEnemy.enemy_currentHP);
+              if(debug) print("Enemy HP: " + targetEnemy.enemy_currentHP);
               attackSelected = false;
               attacked = true;
               break;
@@ -526,8 +526,8 @@ function progressNext() {
   if (targetEnemy.enemy_currentHP <= 0) {
     lastAttackStopper = true;
     endCombat();
-    if(negociated){
-    print("Negociated");
+    if(negotiated){
+    if(debug) print("negotiated");
   } else {
     targetEnemy.enemyDropWeapon();
     player.addXP(targetEnemy.xpEarned);

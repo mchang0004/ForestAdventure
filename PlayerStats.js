@@ -26,8 +26,9 @@ let warriorClass = false;
 let wizardClass = false;
 
 let statsByLevel;
-
-
+let xpToLevelUp;
+let currentLevelStats;
+let nextLevelXP;
 let classWarrior = [ //HP, STR, DEX, INT, CHA, XP
   [12, 0, 0, 0, 0, 0],
 //level 1
@@ -80,22 +81,23 @@ let classWizard = [ //HP, STR, DEX, INT, CHA, XP
 
 */
 class Player{
-  constructor(name, level, maxHP, STR, DEX, INT, CHA, xp, playerClass = "warrior"){
-    if(playerClass == "warrior") statsByLevel = classWarrior;
-    if(playerClass == "wizard") statsByLevel = classWizard;
+  constructor(name, level, maxHP, STR, DEX, INT, CHA, xp, playerClass = "Warrior"){
+    if(playerClass == "Warrior") statsByLevel = classWarrior;
+    if(playerClass == "Wizard") statsByLevel = classWizard;
+    
+    this.playerClass = playerClass;
     this.name = name;
     this.level = level;
     this.xp = xp;
     this.maxHP = maxHP + statsByLevel[this.level][0];
-    this.currentHP = this.maxHP;
-    //print("str: " + statsByLevel[this.level - 1][1]);
+    this.currentHP = this.maxHP;    
 
     this.STR = STR + statsByLevel[this.level][1]; 
     this.DEX = DEX + statsByLevel[this.level][2];
     this.INT = INT + statsByLevel[this.level][3];
     this.CHA = CHA + statsByLevel[this.level][4];
-    
-  
+   
+ 
 
     
   }
@@ -111,10 +113,15 @@ class Player{
   
   addXP(xpToAdd) {
   player.xp += xpToAdd;
-  
+  nextLevelXP = statsByLevel[player.level][5];
   // Check if player has leveled up
-  let currentLevelStats = statsByLevel[player.level];
-  let xpToLevelUp = currentLevelStats[5];
+  currentLevelStats = statsByLevel[player.level]; 
+  xpToLevelUp = currentLevelStats[5];
+  if(this.level == 1){
+      xpToLevelUp = 20;
+  } else {
+      xpToLevelUp = currentLevelStats[5];
+  }
   while (player.xp >= xpToLevelUp) {
     player.level++;
     player.xp -= xpToLevelUp;
@@ -130,7 +137,7 @@ class Player{
   this.maxHP = statsByLevel[this.level][0];
    if(this.currentHP > this.maxHP){
       this.currentHP = this.maxHP;
-      print("CurrentHP set to MaxHP");
+      if(debug) print("CurrentHP set to MaxHP");
 
     }  
 }
@@ -138,7 +145,7 @@ class Player{
 
   
   takeDamage(amount){
-    print("Damage Amount Taken: " + amount);
+    if(debug) print("Damage Amount Taken: " + amount);
     this.currentHP -= amount;
     playerHealthPercent = this.currentHP / this.maxHP;
     //  if(playerHealthPercent < 0){
@@ -147,9 +154,13 @@ class Player{
   }
   
   attack(target, range){
-   
+    let damage;
+    if(equippedWeapon.damage == null){
+      damage = this.STR;
+    } else {
+      damage = this.STR + equippedWeapon.damage;
+    }
     
-    let damage = this.STR + equippedWeapon.damage;
 
     let damageRange = Math.floor(Math.random() * range * 2) - range; // generate a random value within the range
     if(damageRange < 0){
@@ -165,10 +176,14 @@ class Player{
 
   
     attackMagic(target){
-    let damage = this.INT + equippedWeapon.damageMagic;
-      
+    let damage;
+    if(equippedWeapon.damage == null){
+      damage = this.INT;
+    } else {
+      damage = this.INT + equippedWeapon.damage;
+    }  
       if(target.enemy_name == "Goldfall The Immortal" && equippedWeapon.title == "Water Staff"){
-      print("YES");
+      if(debug) print("YES");
       damage += 10;
     }
     
@@ -195,15 +210,15 @@ class Player{
     if(playerHealthPotionCount > 0){ // if Player Has A Potion
       playerHealthPotionCount -= 1;
       this.currentHP += (healthPotionHealingAmount + this.INT);
-      print("Current HP: " + this.currentHP);
+      if(debug) print("Current HP: " + this.currentHP);
       if(this.currentHP > this.maxHP){
         this.currentHP = this.maxHP;
-        print("Current HP: " + this.currentHP);
+        if(debug) print("Current HP: " + this.currentHP);
 
       }  
       return true
     } else { //no potion 
-      print("no potions!");
+      if(debug) print("no potions!");
       return false;
     }
     
@@ -256,12 +271,12 @@ class Enemy{
 
     if(randomModifier < 0){
       randomModifier *= -1;
-      print("RN " + randomModifier);
+      if(debug) print("RN " + randomModifier);
     }
  
     damage += randomModifier;
     previousDamage_Enemy = damage;
-    print("DM " + damage);
+    if(debug) print("DM " + damage);
     target.takeDamage(damage);
   
     if(target.currentHP <= 0){
@@ -273,7 +288,11 @@ class Enemy{
   
   enemyDropWeapon(){
     if(this.droppedWeapon != null) playerSupplies.push(this.droppedWeapon);
-
+    if(!menuShow && this.droppedWeapon != null){
+      newItemSeen = false;
+    } else {
+      newItemSeen = true;
+    }
   }
   
   enemyHeal(){
@@ -309,11 +328,18 @@ class Chest{
     if(!this.opened){
        switch(this.type){
         case 'p':
-          print("Potion");
+          if(debug) print("Potion");
           player.addPotion(this.quantity);
+        
         break;
         case 'i':
           playerSupplies.push(this.item);
+          if(!menuShow){
+            newItemSeen = false;
+          } else {
+            newItemSeen = true;
+          }
+          
           //print("TEST");
       
           

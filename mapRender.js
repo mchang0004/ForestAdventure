@@ -1,8 +1,11 @@
 //This function calls 3 different functions to condense the switch statements when loading different maps.
 function loadMap(mapIndex) {
+  translate(width/2,height/2,0);
   countMap(mapIndex);
-  drawMap(mapIndex);
+  translate(0,0,-1);
   drawPlayer(mapIndex);
+  drawMap(mapIndex);
+  translate(0,0,1);
 }
 
 //This function determines where to position the map based on width. It also offsets the map slightly for the top status bar.
@@ -27,18 +30,52 @@ function countMap(newMap) {
   }
 }
 
+
+
+
+
 function updateUI() {
+  translate(0,0, 5);
   playerHealthPercent = player.currentHP / player.maxHP;
 
+  let size = width * 0.03;
+  
+  if(!newItemSeen){
+    if (frameCount % 30 < 15) {
+    fill(205, 25, 25);
+  } else {
+    fill(180);
+  }
+    
+  stroke("white");
+  rect(width / 2 - (size + width * .02), height / 2 - (size + width * .02), size);
+  
+  } else {
+  fill(180);
+  stroke("orange");
+  rect(width / 2 - (size + width * .02), height / 2 - (size + width * .02), size);
+  
+  }
+  
+  if(equippedWeapon.image != null){
+    texture(equippedWeapon.image);
+  } else {
+    fill("red");
+  }
+  rect(width / 2 - (size + width * .02), height / 2 - (size + width * .02), size);
+  noStroke();
   let hpTextSize = height / 32;
   //let hpTextSize =  map(width, 0, width, 155, 32) * .5;
-  fill(25);
-  rect(-width / 2, -height / 2, width, height * 0.036);
-  fill(50);
-
+  fill(35);
+  rect(-width / 2, -height / 2, width, height * 0.056);
+  fill(80);
+ 
+  
+  
+  
   rect(
     -width / 2 + width * 0.02,
-    -height / 2 + width * 0.015,
+    -height / 2 + width * 0.025,
     width / 6,
     height / 256
   );
@@ -46,7 +83,7 @@ function updateUI() {
   fill(255, 0, 0);
   rect(
     -width / 2 + width * 0.02,
-    -height / 2 + width * 0.015,
+    -height / 2 + width * 0.025,
     (width / 6) * playerHealthPercent,
     height / 256
   );
@@ -56,98 +93,142 @@ function updateUI() {
   text(
     `HP: ${[player.currentHP]} / ${[player.maxHP]} `,
     -width / 2 + width * 0.02,
-    -height / 2 + width * 0.014,
+    -height / 2 + width * 0.018,
     width,
     10
   );
   textAlign(LEFT);
   texture(potionImage);
-  rect(width / 2 - height * 0.036, -height / 2, height * 0.036, height * 0.036);
-  textAlign(RIGHT);
-  text(
-    `(WASD)    to move       |       (I)    items       |       (H)    heal #: ${playerHealthPotionCount}`,
-    -width / 2 - width * 0.025,
-    -height / 2 + width * 0.014,
+  rect(width / 2 - height * 0.056, -height / 2 + (height * .01), height * 0.036, height * 0.036);
+ 
+  textAlign(LEFT);
+  fill(255, 180, 100); 
+  text(`(WASD) to move        `,
+    -width / 2 + width * 0.735,
+    -height / 2 + width * 0.021,
+    width,
+    10
+  );
+  textAlign(LEFT);
+  fill("white"); 
+  text(`(I) items`,
+    -width / 2 + width * 0.835,
+    -height / 2 + width * 0.021,
+    width,
+    10
+  );
+  fill(255, 45, 45); 
+ textAlign(LEFT);
+  text(`        (H) heal #: ${playerHealthPotionCount} `,
+    -width / 2 + width * 0.90,
+    -height / 2 + width * 0.021,
     width,
     10
   );
   textAlign(LEFT);
   //Text for amount
+  translate(0,0,-5);
 }
 
 function showUIMenu() {
+  translate(0,0, 6);
+  nextLevelXP = statsByLevel[player.level][5];
+
   if (menuShow) {
-    stroke(width * 0.001);
-    fill(85);
+    stroke(185);
+    strokeWeight(width*.001);
+    fill(25);
     rect(
-      -width / 2 + width * 0.865,
-      -height / 2 + height * 0.044,
+      -width / 2 + width * 0.855,
+      -height / 2 + height * 0.065,
       width * 0.13,
       width / 6,
       width * 0.01
     );
     noStroke();
     fill(255);
+    //Class, Level, XP, STR, DEX, INT, CHA, 
+    let textOffsetY =  .02;
     text(
-      `Level: ${player.level}`,
+      `Class:  ${player.playerClass}`,
       -width / 2 + width * 0.875,
-      -height / 2 + height * 0.08,
+      -height / 2 + height * (0.08 + textOffsetY),
       width * 0.13,
       width / 6
     );
     //Maybe Add Classes (Warrior, Mage, Ranger)
     text(
-      `Strength: ${player.STR}`,
+       `Level: ${player.level}`,
       -width / 2 + width * 0.875,
-      -height / 2 + height * 0.11,
+      -height / 2 + height * (0.11 + textOffsetY),
       width * 0.13,
       width / 6
     );
     text(
-      `Dexterity: ${player.DEX}`,
+      `XP: ${player.xp} / ${nextLevelXP}`, 
       -width / 2 + width * 0.875,
-      -height / 2 + height * 0.14,
+      -height / 2 + height * (0.14 + textOffsetY),
       width * 0.13,
       width / 6
     );
     text(
-      `Intelligence: ${player.INT}`,
+       `Strength: ${player.STR}`,
       -width / 2 + width * 0.875,
-      -height / 2 + height * 0.17,
+      -height / 2 + height * (0.17 + textOffsetY),
       width * 0.13,
       width / 6
     );
     text(
-      `Charisma: ${player.CHA}`,
+     `Dexterity: ${player.DEX}`, 
       -width / 2 + width * 0.875,
-      -height / 2 + height * 0.2,
+      -height / 2 + height * (0.2 + textOffsetY),
+      width * 0.13,
+      width / 6
+    );
+    text(
+       `Intelligence: ${player.INT}`,
+      -width / 2 + width * 0.875,
+      -height / 2 + height * (0.23 + textOffsetY),
+      width * 0.13,
+      width / 6
+    );
+    text(
+     `Charisma: ${player.CHA}`, 
+      -width / 2 + width * 0.875,
+      -height / 2 + height * (0.26 + textOffsetY),
       width * 0.13,
       width / 6
     );
     text(
       `Enemies Killed: ${enemiesKilled}`,
       -width / 2 + width * 0.875,
-      -height / 2 + height * 0.23,
+      -height / 2 + height * (0.29 + textOffsetY),
       width * 0.13,
       width / 6
     );
     text(
-      `Bosses Killed: ${bossesKilled}`,
+     `Bosses Killed: ${bossesKilled}`,
       -width / 2 + width * 0.875,
-      -height / 2 + height * 0.26,
+      -height / 2 + height * (0.32 + textOffsetY),
       width * 0.13,
       width / 6
     );
+    
+    
+    
+    
+    
   }
 
   if (menuShow) {
     //Stats Menu
-
+    
+    newItemSeen = true;
     //Inventory UI properties
-    const inventoryX = -width / 2;
-    const inventoryY = -height / 2 + height * 0.036;
-    const hitboxX = 0;
-    const hitboxY = 0 + height * 0.036;
+    const inventoryX = -width / 2 + (width *.021);
+    const inventoryY = -height / 2 + height * 0.121;
+    const hitboxX = inventoryX - (-width / 2 );
+    const hitboxY = inventoryY -  (-height / 2);
     const inventoryWidth = width / 6;
     const SizeMod = width / 4;
     const inventoryItemSize = SizeMod * 0.12;
@@ -161,8 +242,26 @@ function showUIMenu() {
     const weaponDamageSize = SizeMod * 0.05;
 
     // Draw the inventory background
-    stroke(width * 0.001);
-    fill(85);
+    strokeWeight(width * 0.001);
+    stroke(185);
+    fill(55);
+    
+  
+   
+    //Top Bar of inventory
+    rect(inventoryX, inventoryY - (height * .06), inventoryWidth, height * 0.056, width * 0.01);
+    textAlign(CENTER);
+    fill(255);
+    text("Items", inventoryX, inventoryY - (height * .03), inventoryWidth, height * 0.055)
+    textSize(weaponDamageSize);
+    text("(B) to delete", inventoryX, inventoryY - (height * .014), inventoryWidth, height * 0.055)
+
+    textAlign(LEFT);
+    
+    
+
+    //inventory
+    fill(55);
     rect(inventoryX, inventoryY, inventoryWidth, inventoryHeight, width * 0.01);
     noStroke();
     // Draw the inventory items
@@ -172,9 +271,12 @@ function showUIMenu() {
     for (let i = 0; i < playerSupplies.length; i++) {
       const item = playerSupplies[i];
       const isSelected = item === equippedWeapon;
-
+  
+      //fill(255, 0, 0);
+      //rect(hitboxX + inventoryPadding, hitbox_Inv_y - inventoryPadding - inventoryItemSize, inventoryWidth - 2 * inventoryPadding, inventoryItemSize + inventoryPadding);
+     
       // Draw the item background
-      fill(isSelected ? color(255, 255, 150) : color(200));
+      fill(isSelected ? color(247, 255, 133) : color(200));
       rect(
         inventoryX + inventoryPadding,
         Inv_y,
@@ -239,6 +341,7 @@ function showUIMenu() {
       equippedWeapon = highestDamageItem;
     }
   }
+  translate(0,0, -6);
 }
 
 function showFPS() {
@@ -251,33 +354,51 @@ function showFPS() {
   text("FPS: " + fps.toFixed(2), 10, height - 10);
 }
 
+
 //This function takes a map and sets a texture and draws the tile
 function drawMap(newMap) {
+  
+
   noStroke();
   texture(grass);
-  rect(0, 0, tileSize * newMap.mP[1].length, tileSize * newMap.mP.length);
+  rect(-width * .0045, height * .001, tileSize * newMap.mP[1].length + (width * .0045 * 2), tileSize * newMap.mP.length);
 
   let chestList = [ chest3, chest5, chest12, chest13, chest14, chest15, chest16, chest17, chest27, chest28, chest29, chest30, chest39, chest40];
 
+ 
+  
+  for (let row = 0; row < numRows; row++) {
+    for (let col = 0; col < numCols; col++) {
+      if (newMap.mP[row][col] == "2" || newMap.mP[row][col] == "8" || newMap.mP[row][col] == "6" || newMap.mP[row][col] == "3" || newMap.mP[row][col] == "S1" || newMap.mP[row][col] == "S2"){
+          texture(pathImage); 
+          let path = rect(col * tileSize - (tileSize * 0.1), row * tileSize + (tileSize *0.5), tileSize * 1.2, tileSize * 1.5);   
+      }
+    }
+  }
+  
+ 
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
       const tile = newMap.mP[row][col];
+      
       switch (tile) {
+       
+          
         case "bs1":
           texture(bossImage1);
-          rect(col * tileSize - (tileSize * 0.5), row * tileSize - (tileSize * 0.5), tileSize* 2);
+          rect(col * tileSize - (tileSize * 0.5), row * tileSize - (tileSize * 0.5), tileSize * 2);
           break;
         case "bs2":
           texture(bossImage2);
-          rect(col * tileSize - (tileSize * 0.5), row * tileSize - (tileSize * 0.5), tileSize* 2);
+          rect(col * tileSize - (tileSize * 0.5), row * tileSize - (tileSize * 0.5), tileSize * 2);
           break;
         case "bs3":
           texture(bossImage4);
-          rect(col * tileSize - (tileSize * 0.5), row * tileSize - (tileSize * 0.5), tileSize* 2);
+          rect(col * tileSize - (tileSize * 0.5), row * tileSize - (tileSize * 0.5), tileSize * 2);
           break;
         case "bs4":
           texture(bossImage3);
-          rect(col * tileSize - (tileSize * 0.5), row * tileSize - (tileSize * 0.5), tileSize* 2);
+          rect(col * tileSize - (tileSize * 0.5), row * tileSize - (tileSize * 0.5), tileSize * 2);
           break;
         case "eL":
           texture(enemyLeft);
@@ -317,21 +438,24 @@ function drawMap(newMap) {
           break;
         case "r":
           texture(rockTileImage);
-          rect(col * tileSize, row * tileSize, tileSize, tileSize);
+         
+          rect(col * tileSize, row * tileSize + (tileSize * .3), tileSize * .85, tileSize * 1.1);
           break;
         case "0":
           texture(tree);
           let xOffset = -0.5;
-          let yOffset = 0.5;
+          let yOffset = 0.55;
+          let xOffset2 = -0.0;
+          let yOffset2 = 0.05;
           quad(
-            col * tileSize,
-            row * tileSize - (1 * tileSize) / 8,
-            (col + 1.5) * tileSize,
-            row * tileSize - (1 * tileSize) / 8,
-            (col + 1.5) * tileSize,
-            (row + 1) * tileSize + (3 * tileSize) / 8,
-            col * tileSize,
-            (row + 1) * tileSize + (3 * tileSize) / 8
+            (col + xOffset2) * tileSize,
+            (row + yOffset2) * tileSize - (1 * tileSize) / 8,
+            (col + xOffset2 + 1.5) * tileSize,
+            (row + yOffset2) * tileSize - (1 * tileSize) / 8,
+            (col + xOffset2 + 1.5) * tileSize,
+            (row + yOffset2 + 1) * tileSize + (3 * tileSize) / 8,
+            (col + xOffset2) * tileSize,
+            (row + yOffset2 + 1) * tileSize + (3 * tileSize) / 8
           );
           quad(
             (col + xOffset) * tileSize,
@@ -393,11 +517,39 @@ function drawMap(newMap) {
       }
     }
   }
+  fill(0);
+  rect(-width * .01, 0, width * .01, height);
+  rect(tileSize * newMap.mP[1].length, 0, width * .01, height);
+
+
+   /*
+   
+translate(0,0,1);
+ fill(122);
+ rect(
+   -width * .0045,
+   -height * 0.036,
+   width,
+   height * 0.056
+); 
+   
+ rect(
+   -width * .0045,
+   -height * 0.036,
+   width,
+   height * 0.036
+ );
+*/
+ 
+ 
+  //rect(width / 2, -height / 2, width, );
+
+ 
 }
 
 //This function draws the player square, not the player lerp
 function drawPlayer(newMap) {
-  
+
 
   
   //draws the player's location when going back to a previous map
@@ -460,32 +612,32 @@ function drawPlayer(newMap) {
       case "1":
         break;
       case "2":
-        print("Next Map");
+        if(debug) print("Next Map");
         nextTrigger = true;
         index += 1;
         break;
       case "3":
-        print("Previous Map");
+        if(debug) print("Previous Map");
         backTrigger = true;
         index -= 1;
         break;
       case "6":
-        print("Go to alternative Map");
+        if(debug) print("Go to alternative Map");
         altNextTrigger = true;
         index += 10;
         break;
       case "8":
-        print("Go back from alternative Map");
+        if(debug) print("Go back from alternative Map");
         altBackTrigger = true;
         index -= 10;
         break;
       case "S2":
-        print("Go to map4");
+        if(debug) print("Go to map4");
         index = 4;
         specialBackTrigger = true;
         break;
       case "G1":
-        print("Go to map26");
+        if(debug) print("Go to map26");
         index = 26;
         specialNextTrigger = true;
         break;

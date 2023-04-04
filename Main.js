@@ -2,11 +2,19 @@
 Michael Chang
 4/2/2023
 
- Forest Adventure | Project 3 | Version 1.9v
+ Forest Adventure | Project 3 | Version 1.9.1v
 Changes from Version 1.8.2v
   - New Version Update!
     - New Items:
-      - 
+      - Added Magic Crest
+      - Enchanted Sword now does 9 Magic Damage
+    - Fixed trees going off the cropline
+    - Added Alert for New Weapon
+    - Changed Font Colors
+    - Changed Inventory and Stats Colors
+    - Reduced Rock Size
+    - Players can now delete weapons and adjusted inventory accordingly
+    - Made a statement for no weapon attacking
 
 */
 
@@ -27,18 +35,18 @@ https://p5js.org/reference/#/p5/min
 
 
 
-
-
+//Print Statements Enabled:
+let debug = false;
 //Maps
 var map1, map2, map3, map4, map5, map12, map13, map14, map15, map16, map17, map26, map27, map28, map29, map30, map39, map40, map41;
 //Images:
 let combatBackground, startBackground, gameOverBackground, helpMenuBackground, classBackground, combatForestBG;
-let tree, grass, waterTop, waterMiddle, waterBottom, bridge, rockTileImage;
+let tree, grass, waterTop, waterMiddle, waterBottom, bridge, rockTileImage, pathImage;
 let playerForward, playerBackward, playerRight, playerLeft;
 let player2Forward, player2Backward, player2Right, player2Left;
 let rustyIronSwordImage, ironSwordImage, axeImage, sharpGlaveImage, greatSwordImage, enchantedSwordImage; 
 let potionImage, chestImage, closedChestImage;
-let attackButton, healButton, itemsButton, negociateButton, magicButton, meleeButton;
+let attackButton, healButton, itemsButton, negotiateButton, magicButton, meleeButton;
 let enemyLeft, enemyRight, enemyDown, enemyUp;
 let darkStaffImage, powerStaffImage, wandImage, waterStaffImage, voidBookImage, magicCrestImage;
 let superGoblinDownImage, superGoblinUpImage, superGoblinLeftImage, superGoblinRightImage;
@@ -113,6 +121,7 @@ let enemyNameText;
 //Combat Canvas Elements
 let inCombat = false;
 let inventoryOpen = false;
+let newItemSeen;
 let gameOver = true;
 //Canvas Elements
 let movementEnabled = false;
@@ -137,7 +146,7 @@ let wizardClassImage = false;
 
 */
 function preload() {
-  print("Preloaded Assets and Game Object Images");
+  if(debug) print("Preloaded Assets and Game Object Images");
   //https://fonts2u.com/pokemon-pixel-font-regular.font
   BPdots = loadFont("assets/pixel_font.ttf");
   //Tiles
@@ -148,6 +157,7 @@ function preload() {
   waterBottom = loadImage("assets/tiles/WaterBottom.png");
   bridge = loadImage("assets/tiles/Bridge.png");
   rockTileImage = loadImage("assets/tiles/rock.png");
+  pathImage = loadImage("assets/tiles/path.png");
   //Structure
   castle = loadImage("assets/tiles/Castle.png");
   //Backgrounds
@@ -187,7 +197,7 @@ function preload() {
   attackButton = loadImage("assets/buttons/Attack.png");
   healButton = loadImage("assets/buttons/Heal.png");
   itemsButton = loadImage("assets/buttons/Items.png");
-  negociateButton = loadImage("assets/buttons/Negociate.png");
+  negotiateButton = loadImage("assets/buttons/Negotiate.png");
   magicButton = loadImage("assets/buttons/Magic.png");
   meleeButton = loadImage("assets/buttons/Melee.png");
   //Enemy Images:
@@ -218,7 +228,19 @@ function setup() {
   startMenu = createCanvas(width, height);
   cnv = createCanvas(width, height, WEBGL);
   ui = createCanvas(width, height);
-
+  
+  
+  cnv.style('display', 'block');
+  cnv.style('width', '100%');
+  cnv.style('height', 'auto');
+  cnv.elt.addEventListener('webglcontextlost', (event) => {
+    event.preventDefault();
+    cnv.remove();
+    alert('WebGL context lost. Please reload the page.');
+  }, false);
+  
+  cnv.elt.setAttribute('antialias', 'true');
+  
   //not sure why I need this, but without loading img, specifically buttons on the battle canvas do not load. Might be a P2D/WEBGL thing.
   image(grass, 0, 0);
 
@@ -356,6 +378,7 @@ function setup() {
 var index = 1; //This variable handles which map is being displayed.
 
 function draw() {
+  cnv.translate(-width / 2, -height / 2, 0);
   if (showStartMenu) {
     startMenuUI();
   }
@@ -367,7 +390,7 @@ function draw() {
     
     //Game State
     background(0);
-    ui.translate(0, 0, 0);
+    //ui.translate(0, 0, 0);
 
     if (inCombat) {
       if (this.currentHP > this.maxHP) {
@@ -375,8 +398,8 @@ function draw() {
       }
       background(220);
       ui.show();
-      ui.translate(-width / 2, -height / 2, 0);
-
+      //ui.translate(-width / 2, -height / 2, 0);
+      
       map(menu.currentWidth, 0, width, maxSize, minSize) * fontScale;
       menu.createCombatUI();
       menu.createButtons();
@@ -403,7 +426,7 @@ function draw() {
       cnv.show();
       const maps = {1: map1, 2: map2, 3: map3, 4: map4, 5: map5, 12: map12, 13: map13, 14: map14, 15: map15, 16: map16, 17: map17, 26: map26, 27: map27, 28: map28, 29: map29, 30: map30, 31: map41, 39: map39, 40: map40, 41: map41};
 
-      //print(index);
+      if(debug) print(index);
       if (index in maps) {
         loadMap(maps[index]);
       }
@@ -458,6 +481,20 @@ function keyPressed() {
   if (keyCode === 84) { //print screen
     saveCanvas('myCanvas', 'png');
   }
+  
+  if(keyCode === 66){ //delete selected weapon
+    let itemIndex = playerSupplies.indexOf(equippedWeapon);
+    if(menuShow && equippedWeapon.title != null) {
+      playerSupplies.splice(itemIndex, 1);
+      equippedWeapon = playerSupplies.indexOf(0);
+      
+    }
+    
+    if(playerSupplies.length == 0){
+      print("YES");
+    }
+    
+  }
 }
 /*
 
@@ -470,7 +507,7 @@ function keyPressed() {
 */
 //This function draws the start screen and help screen
 function startMenuUI() {
-  translate(-width / 2, -height / 2);
+  //translate(-width / 2, -height / 2);
   
   if(showHelpMenu){
     texture(helpMenuBackground);
@@ -482,8 +519,8 @@ function startMenuUI() {
 
   } else if (showClassSelection) { 
     texture(classBackground); 
-    menuButtonCheck(width * 0.185, height * 0.33, "warrior", width * 0.26, height * 0.34);
-    menuButtonCheck(width * 0.555, height * 0.33, "wizard", width * 0.26, height * 0.34);
+    menuButtonCheck(width * 0.185, height * 0.33, "Warrior", width * 0.26, height * 0.34);
+    menuButtonCheck(width * 0.555, height * 0.33, "Wizard", width * 0.26, height * 0.34);
   } else {
     texture(startBackground);
     menuButtonCheck(width * 0.43, height * 0.515, "start");
@@ -533,17 +570,19 @@ if (mouseIsPressed && mouseX > x && mouseX < x + w && mouseY > y && mouseY < y +
       case "showStart":
         showHelpMenu = false;
         break;
-      case "warrior":
+      case "Warrior":
         SetClass("w");
         showClassSelection = false;
         gameOver = showStartMenu = false;
         clicksEnabled = true;
+       
         break;
-      case "wizard":
+      case "Wizard":
         SetClass("wi");
         showClassSelection = false;
         gameOver = showStartMenu = false;
         clicksEnabled = true;
+        
         break;
       case "reset":
         location.reload();
@@ -554,18 +593,19 @@ if (mouseIsPressed && mouseX > x && mouseX < x + w && mouseY > y && mouseY < y +
 
 function SetClass(pC){
   if(pC == "w"){
-    print("Warrior");
+    if(debug) print("Warrior");
     warriorClassImage = true;
     wizardClassImage = false;
     statsByLevel = classWarrior;
-    player = new Player("Player 1", 1, 0, 0, 0, 0, 0, 0, "warrior");
+    player = new Player("Player 1", 1, 0, 0, 0, 0, 0, 0, "Warrior");
   } else if (pC == "wi"){
-    print("Wizard");
+    if(debug) print("Wizard");
     wizardClassImage = true;
     warriorClassImage = false;
     statsByLevel = classWizard;
-    player = new Player("Player 1", 1, 0, 0, 0, 0, 0, 0, "wizard");
+    player = new Player("Player 1", 1, 0, 0, 0, 0, 0, 0, "Wizard");
   }
+  
     
   if(wizardClassImage){
       player.equipItem(noviceWand);
