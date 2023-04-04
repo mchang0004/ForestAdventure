@@ -15,6 +15,8 @@ Changes from Version 1.8.2v
     - Reduced Rock Size
     - Players can now delete weapons and adjusted inventory accordingly
     - Made a statement for no weapon attacking
+    - Added Debug Boolean for Prints
+  
 
 */
 
@@ -25,7 +27,7 @@ https://p5js.org/reference/#/p5/texture
 https://p5js.org/reference/#/p5/min 
 
 */
-
+  let VersionText = "1.9v";
 
 
 
@@ -287,7 +289,7 @@ function setup() {
 
 //Assign Weapons Stats
   rustyIronSword = {title: "Rusty Iron Sword", damage: 3, damageMagic: 0, image: rustyIronSwordImage};
-  noviceWand = {title: "Novice Wand", damage: 0, damageMagic: 2, image: wandImage};
+  noviceWand = {title: "Novice Wand", damage: 1, damageMagic: 2, image: wandImage};
   enchantedSword = {title: "Enchanted Sword", damage: 10, damageMagic: 9, image: enchantedSwordImage};
   waterStaff = {title: "Water Staff", damage: 0, damageMagic: 13, image: waterStaffImage};
   axe = {title: "Axe", damage: 5, damageMagic: 0, image: axeImage};
@@ -393,6 +395,7 @@ function draw() {
     //ui.translate(0, 0, 0);
 
     if (inCombat) {
+   
       if (this.currentHP > this.maxHP) {
         this.currentHP = this.maxHP;
       }
@@ -420,6 +423,19 @@ function draw() {
       if (!lastAttackStopper) {
         enemyAttackLoop();
       }
+      
+      //show Version
+      cnv.translate(0, 0, 7);
+      fill(180);
+      textSize(height * .02);
+      text(VersionText, 0 + (width * .002) + (width * .005) , height - (width * .005), width, height* 0.05);
+      
+      //rect(0, 0, 255, 255);
+      //text(VersionText,0 , height/2, width, height* 0.5);
+      cnv.translate(0, 0, -7);
+      fill(0);
+      
+      
     } else {
       //MAIN GAME STATE:
       ui.hide();
@@ -529,6 +545,12 @@ function startMenuUI() {
   }
   
   rect(0, 0, width, height); //Background Image
+  
+  //show Version
+  fill(180);
+  textSize(height * .02);
+  text(VersionText, (width * .002), height - (width * .002), width, height* 0.05);
+  
   if (showGameOver){
     fill(255);
   textSize(width * .02);

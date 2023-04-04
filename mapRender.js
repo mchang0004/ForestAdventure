@@ -35,8 +35,12 @@ function countMap(newMap) {
 
 
 function updateUI() {
+    
+  
+  
   translate(0,0, 5);
   playerHealthPercent = player.currentHP / player.maxHP;
+
 
   let size = width * 0.03;
   
@@ -63,6 +67,13 @@ function updateUI() {
     fill("red");
   }
   rect(width / 2 - (size + width * .02), height / 2 - (size + width * .02), size);
+  
+  
+  fill(180);
+  textSize(height * .02);
+  text(VersionText, -width/2 + (width * .002) + (width * .005) , height/2 - (width * .005), width, height* 0.05);
+  
+  
   noStroke();
   let hpTextSize = height / 32;
   //let hpTextSize =  map(width, 0, width, 155, 32) * .5;

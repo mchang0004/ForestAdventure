@@ -155,7 +155,7 @@ class Player{
   
   attack(target, range){
     let damage;
-    if(equippedWeapon.damage == null){
+    if(equippedWeapon.damage == null && equippedWeapon.damageMagic == null ){
       damage = this.STR;
     } else {
       damage = this.STR + equippedWeapon.damage;
@@ -174,13 +174,12 @@ class Player{
     target.enemyTakeDamage(damage);
    }
 
-  
     attackMagic(target){
     let damage;
-    if(equippedWeapon.damage == null){
+    if(equippedWeapon.damage == null && equippedWeapon.damageMagic == null ){
       damage = this.INT;
     } else {
-      damage = this.INT + equippedWeapon.damage;
+      damage = this.INT + equippedWeapon.damageMagic;
     }  
       if(target.enemy_name == "Goldfall The Immortal" && equippedWeapon.title == "Water Staff"){
       if(debug) print("YES");
