@@ -16,6 +16,8 @@ Changes from Version 1.8.2v
     - Players can now delete weapons and adjusted inventory accordingly
     - Made a statement for no weapon attacking
     - Added Debug Boolean for Prints
+    - Changed Wizard Stats
+    - Added Version Text
   
 
 */
@@ -27,7 +29,7 @@ https://p5js.org/reference/#/p5/texture
 https://p5js.org/reference/#/p5/min 
 
 */
-  let VersionText = "1.9v";
+  let VersionText = "1.9.1v";
 
 
 
